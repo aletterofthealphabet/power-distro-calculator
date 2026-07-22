@@ -69,3 +69,9 @@ Everything up-to-date
 
 Reached max iterations: 3
 
+base - design prompt
+based on impementation_plan.md, store a markdown file with a concrete design about the architechture, data model, file layouts and key
+functions.
+
+base - build prompt
+
