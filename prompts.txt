@@ -1,0 +1,71 @@
+Original prompt for planning:
+You are an entertainment electrician and a pro software engineer. I'm planning a power distribution website that uses a database to store information and a front end ui that does power calculations on behalf of the user to see if it is safe and optimize it as much as possible for balancing taking into account cabling. the backend should be interactive in the sense that the user can add and log specs of new equipment. make a plan on how this should work.
+
+Base Planning Loop Prompts as copied from my terminal:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mode:   plan
+Prompt: PROMPT_plan.md
+Branch: main
+Stop:   'DONE'
+Max:    3 iterations
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Read specs/
+Then compare to existing code
+From there, write and update IMPLEMENTATION_PLAN.md
+ONLY DO ANALYSIS, YOU SHOULD NOT DO CODE CHANGES. You can only modify IMPLEMENTATION_PLAN.md.
+I compared `specs/base.md` against the repo and found this is a greenfield project — the only committed file is a title-only `README.md`; everything else uncommitted is Ralph-loop orchestration tooling, not app code. `specs/base.md` itself is just the original one-line prompt, not a detailed spec.
+
+I wrote `IMPLEMENTATION_PLAN.md` covering: gap analysis, the domain model (equipment specs, cable specs, distros, circuits, plots), the safety-check and phase-balancing calculation engine, a tech stack recommendation, a 6-phase roadmap, and six open questions that need your input before build work starts (stack choice, US-NEC vs. jurisdiction-agnostic thresholds, single- vs. multi-user scope, ampacity table sourcing, optimizer strength, and that `PROMPT_build.md` still needs to be written).
+Enter passphrase for key '/home/aletterofthealphabet/.ssh/id_ed25519': 
+Received disconnect from 140.82.116.4 port 22:11: Bye Bye
+Disconnected from 140.82.116.4 port 22
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+Failed to push. Creating remote branch...
+Enter passphrase for key '/home/aletterofthealphabet/.ssh/id_ed25519': 
+branch 'main' set up to track 'origin/main'.
+Everything up-to-date
+
+
+======================== LOOP 1 ========================
+
+Read specs/
+Then compare to existing code
+From there, write and update IMPLEMENTATION_PLAN.md
+ONLY DO ANALYSIS, YOU SHOULD NOT DO CODE CHANGES. You can only modify IMPLEMENTATION_PLAN.md.
+`IMPLEMENTATION_PLAN.md` is updated. Summary of this pass:
+
+**Analysis result:** `specs/base.md` and the codebase are unchanged since the plan was last written — still just the one-line prompt, still zero application code (no `package.json`, source dirs, or schema files). The existing gap analysis, domain model, and calc-engine design (§1–§6) hold and weren't touched.
+
+**What I added, since a bare "nothing changed" confirmation doesn't move things forward on a repeated loop pass:**
+- **§0 Status** — records this re-verification with today's date.
+- **§7a Default decisions** — resolves each of the 6 open questions from §7 with a concrete default and rationale, since this is an unattended loop and nothing guarantees a human answers them between iterations. All are flagged as overridable.
+- **§8 Draft Postgres schema** — a concrete DDL sketch for Phase 2, derived directly from the §3 entity model.
+- **§9 API surface sketch** — REST endpoint list for Phase 3, including the `/analyze` and `/auto-balance` endpoints that are the actual product value.
+
+No code files were touched — only `IMPLEMENTATION_PLAN.md`, per your instruction.
+Enter passphrase for key '/home/aletterofthealphabet/.ssh/id_ed25519': 
+Everything up-to-date
+
+
+======================== LOOP 2 ========================
+
+Read specs/
+Then compare to existing code
+From there, write and update IMPLEMENTATION_PLAN.md
+ONLY DO ANALYSIS, YOU SHOULD NOT DO CODE CHANGES. You can only modify IMPLEMENTATION_PLAN.md.
+The plan has been updated. Summary:
+
+**Analysis result:** No drift. `specs/base.md` is still the single one-line prompt (unchanged), and the repo still has zero application code — only `README.md` is committed; everything else (including this plan) is uncommitted Ralph-loop scaffolding. The existing `IMPLEMENTATION_PLAN.md` (domain model, calc engine design, tech stack recommendation, phased roadmap, draft schema, API surface, default decisions for the open questions) already fully covers the spec and required no substantive changes.
+
+**What I changed:** Updated §0 (Status) to log this as a second re-verification pass, and added a note flagging that plan-mode iterations can't progress further on their own — the loop needs either a human to confirm/override the §7a defaults, or `PROMPT_build.md` authored so build mode can start Phase 0. Otherwise this loop will keep re-verifying the same zero-drift state indefinitely.
+Enter passphrase for key '/home/aletterofthealphabet/.ssh/id_ed25519': 
+Everything up-to-date
+
+
+======================== LOOP 3 ========================
+
+Reached max iterations: 3
+
