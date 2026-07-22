@@ -6,6 +6,9 @@ safety checks (breaker/cable/connector/voltage-drop) plus phase-balance
 optimization. See `IMPLEMENTATION_PLAN.md` and `DESIGN.md` for the full
 domain model, calc engine, and architecture.
 
+NOTE: THIS IS A STUDENT PROJECT AND DOES NOT FULLY WORK. PLEASE TALK TO
+A QUALIFIED ELECTRICIAN.
+
 ## Stack
 
 Node.js + TypeScript monorepo (pnpm workspaces): React + Vite frontend,
