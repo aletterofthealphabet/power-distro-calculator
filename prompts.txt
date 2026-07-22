@@ -75,3 +75,85 @@ functions.
 
 base - build prompt
 based on IMPLEMENTATION_PLAN.md and DESIGN.md, please build the power distro calculator
+
+extension - plan
+From the current code, modify it such that there is connector verification (ie edison must connect to edison).
+In addition add length calculations. Make connector type a drop down for the name rather than have the user
+fill out individual specs. In addition, make sure the delete distro and delete circuit buttons work. they do not work 
+currently.
+
+Read specs/
+Then compare to existing code
+From there, write and update IMPLEMENTATION_PLAN.md
+ONLY DO ANALYSIS, YOU SHOULD NOT DO CODE CHANGES. You can only modify IMPLEMENTATION_PLAN.md.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mode:   plan
+Prompt: PROMPT_plan.md
+Branch: main
+Stop:   'DONE'
+Max:    3 iterations
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Read specs/
+Then compare to existing code
+From there, write and update IMPLEMENTATION_PLAN.md
+ONLY DO ANALYSIS, YOU SHOULD NOT DO CODE CHANGES. You can only modify IMPLEMENTATION_PLAN.md.
+IMPLEMENTATION_PLAN.md is updated. Summary of what I did:
+
+**Analysis performed** (read-only): compared `specs/base.md` and the new `specs/extension.md` against the actual codebase (which turned out to be fully built, not the greenfield state the plan previously described).
+
+**Plan changes:**
+- Corrected the stale §0 status (it claimed "zero application code" — the app is actually fully built through Phase 4), preserving the old notein a collapsed historical block.
+- Added new **§10**, a gap analysis + implementation plan for each of the four `specs/extension.md` asks, with concrete file:line references:
+  1. **Connector verification** — the amps-only check exists, but equipment/cable connector type never even reaches the calc engine's DTOs; needs new fields, a new check, and wiring on both plotLoader.ts and buildPlotInput.ts.
+  2. **Length calculations** — the voltage-drop math is already correct and tested, but there's no UI anywhere to set cable/length on an equipment instance, so it's dead code in practice.
+  3. **Connector dropdown** — all four connector inputs are free text; a canonical list exists but is trapped in `apps/api`, unreachable by thefrontend.
+  4. **Delete buttons** — static review of routes/CORS/FK cascades found nothing wrong at the DB/API layer; most likely cause is silently-swallowed fetch errors in the click handlers, but flagged as an unconfirmed hypothesis requiring live reproduction before fixing.
+- Recommended build order: fix delete bug first (blocks manual testing of the rest), then dropdown (foundation), then connector verification (depends on dropdown), then length-calc UI wiring (independent, lowest urgency).
+
+No code was changed — only `IMPLEMENTATION_PLAN.md`.
+Enter passphrase for key '/home/aletterofthealphabet/.ssh/id_ed25519': 
+Everything up-to-date
+
+
+======================== LOOP 1 ========================
+
+Read specs/
+Then compare to existing code
+From there, write and update IMPLEMENTATION_PLAN.md
+ONLY DO ANALYSIS, YOU SHOULD NOT DO CODE CHANGES. You can only modify IMPLEMENTATION_PLAN.md.
+The plan is updated. Summary of this pass:
+
+**Analysis result:** No drift since the last commit — `git status`/`git diff HEAD --stat` show only `IMPLEMENTATION_PLAN.md` and `prompts.txt` modified, `specs/extension.md` untracked and unchanged. I independently re-read every file the existing §10 (the extension.md gap analysis) cites — DTOs, `connectorRating.ts`, `plotLoader.ts`, `buildPlotInput.ts`, `connectorTable.ts`, the plot-builder React components, `apiClient.ts`/`useApi.ts`, the delete routes, the error handler, `server.ts` CORS, the migration's FK cascade clauses, and the two catalog forms — and every specific claim (missing `connectorType` on the calc-engine DTOs, the four free-text connector inputs and their exact line ranges, cascade rules, theunawaited-async-onClick hypothesis for the delete-button bug) checked out exactly. §10's plan required no revision.
+
+**What I changed:** Added a "pass 4" status entry to §0 recording this reconciliation, moved the old pass-3 note into a historical `<details>` block (matching the existing pass-2 pattern), and fixed one small inaccuracy — §0 claimed 8 Vitest files under `packages/calc-engine/test`; there are actually 9 (`voltageDrop.test.ts` was uncounted).
+
+No code files were touched, only `IMPLEMENTATION_PLAN.md`.
+Enter passphrase for key '/home/aletterofthealphabet/.ssh/id_ed25519': 
+Everything up-to-date
+
+
+======================== LOOP 2 ========================
+
+Read specs/
+Then compare to existing code
+From there, write and update IMPLEMENTATION_PLAN.md
+ONLY DO ANALYSIS, YOU SHOULD NOT DO CODE CHANGES. You can only modify IMPLEMENTATION_PLAN.md.
+Done. Summary of this pass:
+
+- Read `specs/base.md` and `specs/extension.md`, then independently re-verified every file:line citation in the existing §10 gap analysis against the actual current source (connector DTOs, `connectorTable.ts`, `plotLoader.ts`/`buildPlotInput.ts`, the four free-text connector inputs, delete-button call chain, FK cascades, CORS/error handling, Vite proxy config).
+- Confirmed zero application-code drift since the `base - build` commit — everything in pass 4's §10 analysis and build order (dropdown → compatibility check → length UI, delete-fix first) still holds exactly.
+- Found one correction: `useApi.ts`'s `reload()` does genuinely re-fetch from the server (confirmed by reading it directly), which falsifies one of the three delete-button hypotheses in §10.5. Updated the plan to drop that hypothesis and note the finding, narrowing the leading explanation to the unawaited-async-`onClick` swallowed-rejection theory — still unconfirmed pending an actual run of the app.
+
+Only `IMPLEMENTATION_PLAN.md` was modified (new pass-5 status section, pass-4 wrapped into a historical `<details>` block, §10.5 tightened); nocode was touched.
+Enter passphrase for key '/home/aletterofthealphabet/.ssh/id_ed25519': 
+Everything up-to-date
+
+
+======================== LOOP 3 ========================
+
+Reached max iterations: 3
+
+extension - design
+based on impementation_plan.md, store a markdown file with a concrete design about the architechture, data model, file layouts and key
+functions and modifications needed to the original code
