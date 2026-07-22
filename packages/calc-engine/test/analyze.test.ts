@@ -34,6 +34,7 @@ describe('analyzePlot (e2e)', () => {
           isContinuousLoad: true,
           circuitId: 'c1',
           pinned: false,
+          connectorType: 'Edison',
         },
       ],
     };
@@ -85,6 +86,7 @@ describe('analyzePlot (e2e)', () => {
           isContinuousLoad: true,
           circuitId: 'c-L1',
           pinned: false,
+          connectorType: 'stage pin',
         },
         {
           instanceId: 'e2',
@@ -94,6 +96,7 @@ describe('analyzePlot (e2e)', () => {
           isContinuousLoad: false,
           circuitId: 'c-L2',
           pinned: false,
+          connectorType: 'stage pin',
         },
       ],
     };

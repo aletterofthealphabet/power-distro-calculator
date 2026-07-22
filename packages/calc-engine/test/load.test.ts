@@ -10,6 +10,7 @@ function baseItem(overrides: Partial<EquipmentLoadInput> = {}): EquipmentLoadInp
     isContinuousLoad: true,
     circuitId: 'circuit-1',
     pinned: false,
+    connectorType: 'Edison',
     ...overrides,
   };
 }

@@ -41,7 +41,12 @@ async function main() {
   await app.listen({ port, host: '0.0.0.0' });
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Only listen when this module is the process entry point (tsx watch /
+// node dist/server.js) — importing buildServer() for tests must not also
+// bind a port.
+if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

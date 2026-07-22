@@ -6,6 +6,7 @@ export * from './analyze.js';
 export * from './checks/continuousDerating.js';
 export * from './checks/cableAmpacity.js';
 export * from './checks/connectorRating.js';
+export * from './checks/connectorCompatibility.js';
 export * from './checks/distroCapacity.js';
 export * from './checks/voltageDrop.js';
 export * from './checks/phaseLegOvercurrent.js';

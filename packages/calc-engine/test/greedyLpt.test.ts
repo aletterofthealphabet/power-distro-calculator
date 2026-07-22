@@ -23,6 +23,7 @@ function item(overrides: Partial<EquipmentLoadInput>): EquipmentLoadInput {
     isContinuousLoad: true,
     circuitId: null,
     pinned: false,
+    connectorType: 'cam',
     ...overrides,
   };
 }

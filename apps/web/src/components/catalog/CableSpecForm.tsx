@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import type { CableSpec } from '@power-distro/shared-types';
+import { CONNECTOR_TYPES, OTHER_CONNECTOR_VALUE } from '@power-distro/shared-types';
 
 export function CableSpecForm({ onSubmit }: { onSubmit: (spec: Partial<CableSpec>) => void }) {
   const [gaugeAwg, setGaugeAwg] = useState('12');
   const [conductorCount, setConductorCount] = useState(2);
-  const [connectorType, setConnectorType] = useState('stage pin');
+  const [connectorType, setConnectorType] = useState(CONNECTOR_TYPES[0].value);
+  const [customConnector, setCustomConnector] = useState('');
   const [ratedAmps, setRatedAmps] = useState(20);
   const [resistanceOhmsPer1000ft, setResistanceOhmsPer1000ft] = useState(1.93);
   const [source, setSource] = useState('');
@@ -16,7 +18,7 @@ export function CableSpecForm({ onSubmit }: { onSubmit: (spec: Partial<CableSpec
         onSubmit({
           gaugeAwg,
           conductorCount,
-          connectorType,
+          connectorType: connectorType === OTHER_CONNECTOR_VALUE ? customConnector : connectorType,
           ratedAmps,
           resistanceOhmsPer1000ft,
           source: source || undefined,
@@ -34,13 +36,23 @@ export function CableSpecForm({ onSubmit }: { onSubmit: (spec: Partial<CableSpec
         placeholder="Conductors"
         style={{ width: 100 }}
       />
-      <input
-        required
-        value={connectorType}
-        onChange={(e) => setConnectorType(e.target.value)}
-        placeholder="Connector type"
-        style={{ width: 140 }}
-      />
+      <select value={connectorType} onChange={(e) => setConnectorType(e.target.value)}>
+        {CONNECTOR_TYPES.map((c) => (
+          <option key={c.value} value={c.value}>
+            {c.label}
+          </option>
+        ))}
+        <option value={OTHER_CONNECTOR_VALUE}>Other / custom…</option>
+      </select>
+      {connectorType === OTHER_CONNECTOR_VALUE && (
+        <input
+          required
+          value={customConnector}
+          onChange={(e) => setCustomConnector(e.target.value)}
+          placeholder="Custom connector type"
+          style={{ width: 140 }}
+        />
+      )}
       <input
         required
         type="number"

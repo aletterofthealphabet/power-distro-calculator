@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { EquipmentSpec } from '@power-distro/shared-types';
+import { CONNECTOR_TYPES, OTHER_CONNECTOR_VALUE } from '@power-distro/shared-types';
 
 const CATEGORIES = ['lighting fixture', 'LED fixture', 'moving light', 'hazer', 'video wall', 'audio amp', 'motor', 'practical', 'other'];
 
@@ -11,7 +12,8 @@ export function EquipmentSpecForm({ onSubmit }: { onSubmit: (spec: Partial<Equip
   const [currentAmps, setCurrentAmps] = useState<number | ''>('');
   const [voltage, setVoltage] = useState(120);
   const [phase, setPhase] = useState<1 | 3>(1);
-  const [connectorType, setConnectorType] = useState('Edison');
+  const [connectorType, setConnectorType] = useState(CONNECTOR_TYPES[0].value);
+  const [customConnector, setCustomConnector] = useState('');
   const [isContinuousLoad, setIsContinuousLoad] = useState(true);
   const [source, setSource] = useState('');
 
@@ -26,7 +28,7 @@ export function EquipmentSpecForm({ onSubmit }: { onSubmit: (spec: Partial<Equip
           currentAmps: specMode === 'amps' ? Number(currentAmps) : undefined,
           voltage,
           phase,
-          connectorType,
+          connectorType: connectorType === OTHER_CONNECTOR_VALUE ? customConnector : connectorType,
           isContinuousLoad,
           source: source || undefined,
         });
@@ -80,13 +82,23 @@ export function EquipmentSpecForm({ onSubmit }: { onSubmit: (spec: Partial<Equip
         <option value={1}>1φ</option>
         <option value={3}>3φ</option>
       </select>
-      <input
-        required
-        value={connectorType}
-        onChange={(e) => setConnectorType(e.target.value)}
-        placeholder="Connector type"
-        style={{ width: 140 }}
-      />
+      <select value={connectorType} onChange={(e) => setConnectorType(e.target.value)}>
+        {CONNECTOR_TYPES.map((c) => (
+          <option key={c.value} value={c.value}>
+            {c.label}
+          </option>
+        ))}
+        <option value={OTHER_CONNECTOR_VALUE}>Other / custom…</option>
+      </select>
+      {connectorType === OTHER_CONNECTOR_VALUE && (
+        <input
+          required
+          value={customConnector}
+          onChange={(e) => setCustomConnector(e.target.value)}
+          placeholder="Custom connector type"
+          style={{ width: 140 }}
+        />
+      )}
       <label style={{ fontSize: 13 }}>
         <input type="checkbox" checked={isContinuousLoad} onChange={(e) => setIsContinuousLoad(e.target.checked)} />{' '}
         Continuous load

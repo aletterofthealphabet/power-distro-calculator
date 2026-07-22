@@ -10,6 +10,7 @@ import { aggregateCircuitLoad } from './load.js';
 import { checkContinuousDerating } from './checks/continuousDerating.js';
 import { checkCableAmpacity } from './checks/cableAmpacity.js';
 import { checkConnectorRating } from './checks/connectorRating.js';
+import { checkConnectorCompatibility } from './checks/connectorCompatibility.js';
 import { checkDistroCapacity } from './checks/distroCapacity.js';
 import { checkVoltageDrop } from './checks/voltageDrop.js';
 import { checkPhaseLegOvercurrent } from './checks/phaseLegOvercurrent.js';
@@ -54,9 +55,12 @@ export function analyzePlot(input: PlotInput): AnalysisReport {
       circuits.push(circuitResult);
       distroCircuitResults.push(circuitResult);
 
+      const equipmentOnCircuit = input.equipment.filter((item) => item.circuitId === circuit.circuitId);
+
       violations.push(...checkContinuousDerating(circuit, loadAmps));
       violations.push(...checkCableAmpacity(circuit, loadAmps));
       violations.push(...checkConnectorRating(circuit, loadAmps));
+      violations.push(...checkConnectorCompatibility(circuit, equipmentOnCircuit));
       violations.push(...checkVoltageDrop(circuit, loadAmps, input.voltageDropThresholdPct));
 
       legTotals.set(circuit.phaseLeg, (legTotals.get(circuit.phaseLeg) ?? 0) + loadAmps);

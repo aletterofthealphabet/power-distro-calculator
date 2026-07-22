@@ -157,3 +157,6 @@ Reached max iterations: 3
 extension - design
 based on impementation_plan.md, store a markdown file with a concrete design about the architechture, data model, file layouts and key
 functions and modifications needed to the original code
+
+extension - build
+based on design_extension.md and implementation_plan.md, modify the codebase

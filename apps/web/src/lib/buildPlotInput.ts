@@ -45,6 +45,7 @@ export function buildPlotInput(
           ratedAmps: cableSpec.ratedAmps,
           resistanceOhmsPer1000ft: cableSpec.resistanceOhmsPer1000ft,
           lengthFt: instance.cableLengthFt,
+          connectorType: cableSpec.connectorType,
         };
       }
     }
@@ -61,6 +62,7 @@ export function buildPlotInput(
       isContinuousLoad: spec?.isContinuousLoad ?? true,
       circuitId: instance.circuitId,
       pinned: instance.pinned,
+      connectorType: spec?.connectorType ?? '',
     };
   });
 

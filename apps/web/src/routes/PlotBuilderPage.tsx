@@ -7,7 +7,9 @@ import { buildPlotInput } from '../lib/buildPlotInput';
 import { DistroUnitCard } from '../components/plot/DistroUnitCard';
 import { ViolationList } from '../components/violations/ViolationList';
 import type { Circuit, DistroUnit } from '@power-distro/shared-types';
+import { CONNECTOR_TYPES, OTHER_CONNECTOR_VALUE } from '@power-distro/shared-types';
 import type { InstanceChip } from '../components/plot/EquipmentInstanceDrop';
+import { asAmps, computeVoltageDrop } from '@power-distro/calc-engine';
 
 export function PlotBuilderPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,9 +17,11 @@ export function PlotBuilderPage() {
   const equipmentSpecs = useApi(() => api.equipmentSpecs.list());
   const cableSpecs = useApi(() => api.cableSpecs.list());
 
+  const [error, setError] = useState<string | null>(null);
   const [showAddDistro, setShowAddDistro] = useState(false);
   const [distroName, setDistroName] = useState('');
-  const [inputConnector, setInputConnector] = useState('camlock 400A');
+  const [inputConnector, setInputConnector] = useState('camlock');
+  const [customInputConnector, setCustomInputConnector] = useState('');
   const [maxAmps, setMaxAmps] = useState(200);
   const [phaseConfig, setPhaseConfig] = useState<1 | 3>(3);
   const [voltage, setVoltage] = useState(208);
@@ -44,6 +48,19 @@ export function PlotBuilderPage() {
     () => new Map(report.circuits.map((c) => [c.circuitId, c])),
     [report.circuits],
   );
+
+  const voltageDropByCircuitId = useMemo(() => {
+    const map = new Map<string, number>();
+    if (!plotInput) return map;
+    for (const distro of plotInput.distros) {
+      for (const circuit of distro.circuits) {
+        if (!circuit.cable) continue;
+        const loadAmps = circuitResultsById.get(circuit.circuitId)?.loadAmps ?? 0;
+        map.set(circuit.circuitId, computeVoltageDrop(circuit, asAmps(loadAmps)));
+      }
+    }
+    return map;
+  }, [plotInput, circuitResultsById]);
 
   const instancesByCircuit = useMemo(() => {
     const map = new Map<string, InstanceChip[]>();
@@ -156,12 +173,20 @@ export function PlotBuilderPage() {
                   plot.reload();
                 }}
                 onDeleteCircuit={async (circuitId) => {
-                  await api.circuits.remove(circuitId);
-                  plot.reload();
+                  try {
+                    await api.circuits.remove(circuitId);
+                    plot.reload();
+                  } catch (err) {
+                    setError((err as Error).message);
+                  }
                 }}
                 onDeleteDistro={async (distroId) => {
-                  await api.distroUnits.remove(distroId);
-                  plot.reload();
+                  try {
+                    await api.distroUnits.remove(distroId);
+                    plot.reload();
+                  } catch (err) {
+                    setError((err as Error).message);
+                  }
                 }}
                 onDropInstance={async (instanceId, circuitId) => {
                   await api.equipmentInstances.update(instanceId, { circuitId });
@@ -175,6 +200,16 @@ export function PlotBuilderPage() {
                   await api.equipmentInstances.update(instanceId, { circuitId: null });
                   plot.reload();
                 }}
+                cableSpecs={cableSpecs.data ?? []}
+                onSetCable={async (instanceId, cableSpecId, cableLengthFt) => {
+                  try {
+                    await api.equipmentInstances.update(instanceId, { cableSpecId, cableLengthFt });
+                    plot.reload();
+                  } catch (err) {
+                    setError((err as Error).message);
+                  }
+                }}
+                voltageDropByCircuitId={voltageDropByCircuitId}
               />
             );
           })}
@@ -183,7 +218,13 @@ export function PlotBuilderPage() {
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
-                await api.distroUnits.create(plot.data!.id, { name: distroName, inputConnector, maxAmps, phaseConfig, voltage });
+                await api.distroUnits.create(plot.data!.id, {
+                  name: distroName,
+                  inputConnector: inputConnector === OTHER_CONNECTOR_VALUE ? customInputConnector : inputConnector,
+                  maxAmps,
+                  phaseConfig,
+                  voltage,
+                });
                 setDistroName('');
                 setShowAddDistro(false);
                 plot.reload();
@@ -191,7 +232,22 @@ export function PlotBuilderPage() {
               style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}
             >
               <input required value={distroName} onChange={(e) => setDistroName(e.target.value)} placeholder="Distro name" style={{ width: 160 }} />
-              <input value={inputConnector} onChange={(e) => setInputConnector(e.target.value)} placeholder="Input connector" style={{ width: 140 }} />
+              <select value={inputConnector} onChange={(e) => setInputConnector(e.target.value)}>
+                {CONNECTOR_TYPES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+                <option value={OTHER_CONNECTOR_VALUE}>Other / custom…</option>
+              </select>
+              {inputConnector === OTHER_CONNECTOR_VALUE && (
+                <input
+                  value={customInputConnector}
+                  onChange={(e) => setCustomInputConnector(e.target.value)}
+                  placeholder="Custom input connector"
+                  style={{ width: 140 }}
+                />
+              )}
               <input type="number" value={maxAmps} onChange={(e) => setMaxAmps(Number(e.target.value))} placeholder="Max amps" style={{ width: 90 }} />
               <select value={phaseConfig} onChange={(e) => setPhaseConfig(Number(e.target.value) as 1 | 3)}>
                 <option value={1}>1φ</option>
@@ -211,6 +267,14 @@ export function PlotBuilderPage() {
         <div>
           <h3>Live analysis</h3>
           <p style={{ fontSize: 13, opacity: 0.7 }}>Computed client-side on every change — the server re-checks on save.</p>
+          {error && (
+            <div style={{ background: '#fde8e8', color: '#b3261e', borderRadius: 6, padding: '6px 10px', marginBottom: 8, fontSize: 13, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+              <span>{error}</span>
+              <button onClick={() => setError(null)} style={{ border: 'none', background: 'none', color: '#b3261e', cursor: 'pointer' }}>
+                ×
+              </button>
+            </div>
+          )}
           <p>Total draw: {report.totalDrawAmps.toFixed(1)}A</p>
           <ViolationList violations={report.violations} />
         </div>

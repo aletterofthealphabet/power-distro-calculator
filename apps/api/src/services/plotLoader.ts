@@ -35,6 +35,7 @@ export async function loadPlotInput(prisma: PrismaClient, plotId: string): Promi
           ratedAmps: Number(instance.cableSpec!.ratedAmps),
           resistanceOhmsPer1000ft: Number(instance.cableSpec!.resistanceOhmsPer1000ft),
           lengthFt: Number(instance.cableLengthFt),
+          connectorType: instance.cableSpec!.connectorType,
         },
       ]),
   );
@@ -76,6 +77,7 @@ export async function loadPlotInput(prisma: PrismaClient, plotId: string): Promi
     isContinuousLoad: instance.equipmentSpec.isContinuousLoad,
     circuitId: instance.circuitId,
     pinned: instance.pinned,
+    connectorType: instance.equipmentSpec.connectorType,
   }));
 
   return {

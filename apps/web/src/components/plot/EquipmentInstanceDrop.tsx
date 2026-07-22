@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { EquipmentInstance, EquipmentSpec } from '@power-distro/shared-types';
+import type { CableSpec, EquipmentInstance, EquipmentSpec } from '@power-distro/shared-types';
 
 export interface InstanceChip {
   instance: EquipmentInstance;
@@ -11,10 +11,21 @@ interface Props {
   onDropInstance: (instanceId: string) => void;
   onTogglePin: (instanceId: string, pinned: boolean) => void;
   onRemove: (instanceId: string) => void;
+  cableSpecs: CableSpec[];
+  onSetCable: (instanceId: string, cableSpecId: string | null, cableLengthFt: number | null) => void;
+  voltageDropPct?: number;
 }
 
 /** Drag-drop target for assigning an EquipmentInstance to a circuit (DESIGN.md §2). */
-export function EquipmentInstanceDrop({ instances, onDropInstance, onTogglePin, onRemove }: Props) {
+export function EquipmentInstanceDrop({
+  instances,
+  onDropInstance,
+  onTogglePin,
+  onRemove,
+  cableSpecs,
+  onSetCable,
+  voltageDropPct,
+}: Props) {
   const [isOver, setIsOver] = useState(false);
 
   return (
@@ -77,6 +88,30 @@ export function EquipmentInstanceDrop({ instances, onDropInstance, onTogglePin, 
           >
             ×
           </button>
+          <select
+            value={instance.cableSpecId ?? ''}
+            onChange={(e) =>
+              onSetCable(instance.id, e.target.value || null, instance.cableLengthFt ?? null)
+            }
+            style={{ fontSize: 12 }}
+          >
+            <option value="">No cable</option>
+            {cableSpecs.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.gaugeAwg} · {c.connectorType} · {c.ratedAmps}A
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            value={instance.cableLengthFt ?? ''}
+            onChange={(e) =>
+              onSetCable(instance.id, instance.cableSpecId ?? null, e.target.value === '' ? null : Number(e.target.value))
+            }
+            placeholder="ft"
+            style={{ width: 60 }}
+          />
+          {voltageDropPct != null && <span style={{ fontSize: 12, opacity: 0.7 }}>{voltageDropPct.toFixed(1)}% drop</span>}
         </div>
       ))}
     </div>

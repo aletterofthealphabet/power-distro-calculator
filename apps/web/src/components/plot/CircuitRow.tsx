@@ -1,4 +1,4 @@
-import type { Circuit } from '@power-distro/shared-types';
+import type { CableSpec, Circuit } from '@power-distro/shared-types';
 import type { CircuitResult } from '@power-distro/calc-engine';
 import { EquipmentInstanceDrop, type InstanceChip } from './EquipmentInstanceDrop';
 
@@ -10,9 +10,23 @@ interface Props {
   onTogglePin: (instanceId: string, pinned: boolean) => void;
   onRemove: (instanceId: string) => void;
   onDelete: () => void;
+  cableSpecs: CableSpec[];
+  onSetCable: (instanceId: string, cableSpecId: string | null, cableLengthFt: number | null) => void;
+  voltageDropPct?: number;
 }
 
-export function CircuitRow({ circuit, result, instances, onDropInstance, onTogglePin, onRemove, onDelete }: Props) {
+export function CircuitRow({
+  circuit,
+  result,
+  instances,
+  onDropInstance,
+  onTogglePin,
+  onRemove,
+  onDelete,
+  cableSpecs,
+  onSetCable,
+  voltageDropPct,
+}: Props) {
   const loadPct = result?.loadPct ?? 0;
   const loadColor = loadPct > 100 ? '#b3261e' : loadPct > 80 ? '#9a5b00' : '#1e7e34';
 
@@ -37,6 +51,9 @@ export function CircuitRow({ circuit, result, instances, onDropInstance, onToggl
         onDropInstance={onDropInstance}
         onTogglePin={onTogglePin}
         onRemove={onRemove}
+        cableSpecs={cableSpecs}
+        onSetCable={onSetCable}
+        voltageDropPct={voltageDropPct}
       />
     </div>
   );

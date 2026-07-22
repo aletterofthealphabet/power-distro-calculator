@@ -16,6 +16,7 @@ export interface EquipmentLoadInput {
   isContinuousLoad: boolean;
   circuitId: string | null;
   pinned: boolean;
+  connectorType: string;
 }
 
 export interface CircuitInput {
@@ -26,7 +27,12 @@ export interface CircuitInput {
   connectorType: string;
   connectorMaxAmps: number;
   isContinuousOverride?: boolean;
-  cable?: { ratedAmps: number; resistanceOhmsPer1000ft: number; lengthFt: number };
+  cable?: {
+    ratedAmps: number;
+    resistanceOhmsPer1000ft: number;
+    lengthFt: number;
+    connectorType?: string;
+  };
 }
 
 export interface DistroInput {
@@ -49,6 +55,7 @@ export type CheckId =
   | 'continuous_derating'
   | 'cable_ampacity'
   | 'connector_rating'
+  | 'connector_compatibility'
   | 'distro_capacity'
   | 'voltage_drop'
   | 'phase_leg_overcurrent';

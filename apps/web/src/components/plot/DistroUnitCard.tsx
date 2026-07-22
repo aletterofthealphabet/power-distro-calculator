@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { Circuit, DistroUnit } from '@power-distro/shared-types';
+import type { CableSpec, Circuit, DistroUnit } from '@power-distro/shared-types';
+import { CONNECTOR_TYPES, OTHER_CONNECTOR_VALUE } from '@power-distro/shared-types';
 import type { CircuitResult, PhaseLegResult } from '@power-distro/calc-engine';
 import { CircuitRow } from './CircuitRow';
 import { PhaseBalanceBar } from './PhaseBalanceBar';
@@ -17,6 +18,9 @@ interface Props {
   onDropInstance: (instanceId: string, circuitId: string) => void;
   onTogglePin: (instanceId: string, pinned: boolean) => void;
   onRemoveInstance: (instanceId: string) => void;
+  cableSpecs: CableSpec[];
+  onSetCable: (instanceId: string, cableSpecId: string | null, cableLengthFt: number | null) => void;
+  voltageDropByCircuitId: Map<string, number>;
 }
 
 const PHASE_LEGS = ['L1', 'L2', 'L3', 'hot', 'neutral'] as const;
@@ -42,12 +46,16 @@ export function DistroUnitCard({
   onDropInstance,
   onTogglePin,
   onRemoveInstance,
+  cableSpecs,
+  onSetCable,
+  voltageDropByCircuitId,
 }: Props) {
   const [showAddCircuit, setShowAddCircuit] = useState(false);
   const [breakerRatingAmps, setBreakerRatingAmps] = useState(20);
   const [voltage, setVoltage] = useState(distro.voltage);
   const [phaseLeg, setPhaseLeg] = useState<(typeof PHASE_LEGS)[number]>('L1');
-  const [connectorType, setConnectorType] = useState('stage pin');
+  const [connectorType, setConnectorType] = useState(CONNECTOR_TYPES[0].value);
+  const [customConnector, setCustomConnector] = useState('');
 
   return (
     <div style={{ border: '1px solid #d1d5db', borderRadius: 10, padding: 14, marginBottom: 16 }}>
@@ -77,6 +85,9 @@ export function DistroUnitCard({
           onTogglePin={onTogglePin}
           onRemove={onRemoveInstance}
           onDelete={() => onDeleteCircuit(circuit.id)}
+          cableSpecs={cableSpecs}
+          onSetCable={onSetCable}
+          voltageDropPct={voltageDropByCircuitId.get(circuit.id)}
         />
       ))}
 
@@ -84,7 +95,12 @@ export function DistroUnitCard({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            onAddCircuit(distro.id, { breakerRatingAmps, voltage, phaseLeg, connectorType });
+            onAddCircuit(distro.id, {
+              breakerRatingAmps,
+              voltage,
+              phaseLeg,
+              connectorType: connectorType === OTHER_CONNECTOR_VALUE ? customConnector : connectorType,
+            });
             setShowAddCircuit(false);
           }}
           style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 8, flexWrap: 'wrap' }}
@@ -110,12 +126,22 @@ export function DistroUnitCard({
               </option>
             ))}
           </select>
-          <input
-            value={connectorType}
-            onChange={(e) => setConnectorType(e.target.value)}
-            placeholder="Connector type"
-            style={{ width: 140 }}
-          />
+          <select value={connectorType} onChange={(e) => setConnectorType(e.target.value)}>
+            {CONNECTOR_TYPES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+            <option value={OTHER_CONNECTOR_VALUE}>Other / custom…</option>
+          </select>
+          {connectorType === OTHER_CONNECTOR_VALUE && (
+            <input
+              value={customConnector}
+              onChange={(e) => setCustomConnector(e.target.value)}
+              placeholder="Custom connector type"
+              style={{ width: 140 }}
+            />
+          )}
           <button type="submit">Add</button>
           <button type="button" onClick={() => setShowAddCircuit(false)}>
             Cancel
