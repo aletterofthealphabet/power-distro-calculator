@@ -1,0 +1,108 @@
+// DESIGN.md §3.1 — Prisma schema for the power distro calculator.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  plots Plot[]
+  specs EquipmentSpec[] @relation("SpecAuthor")
+}
+
+model EquipmentSpec {
+  id               String   @id @default(uuid())
+  name             String
+  category         String
+  powerWatts       Decimal?
+  currentAmps      Decimal?
+  voltage          Decimal
+  powerFactor      Decimal?
+  phase            Int // 1 | 3
+  connectorType    String
+  isContinuousLoad Boolean  @default(true)
+  notes            String?
+  source           String?
+  unverified       Boolean  @default(false)
+  createdById      String?
+  createdBy        User?    @relation("SpecAuthor", fields: [createdById], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  instances EquipmentInstance[]
+}
+
+model CableSpec {
+  id                      String   @id @default(uuid())
+  gaugeAwg                String
+  conductorCount          Int
+  connectorType           String
+  ratedAmps               Decimal
+  resistanceOhmsPer1000ft Decimal
+  source                  String?
+  unverified              Boolean  @default(false)
+
+  instances EquipmentInstance[]
+}
+
+model Plot {
+  id        String    @id @default(uuid())
+  name      String
+  venue     String?
+  eventDate DateTime?
+  ownerId   String?
+  owner     User?     @relation(fields: [ownerId], references: [id])
+  createdAt DateTime  @default(now())
+
+  distroUnits DistroUnit[]
+  instances   EquipmentInstance[]
+}
+
+model DistroUnit {
+  id             String  @id @default(uuid())
+  plotId         String
+  plot           Plot    @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  name           String
+  inputConnector String
+  maxAmps        Decimal
+  phaseConfig    Int // 1 | 3
+  voltage        Decimal
+
+  circuits Circuit[]
+}
+
+model Circuit {
+  id                   String   @id @default(uuid())
+  distroUnitId         String
+  distroUnit           DistroUnit @relation(fields: [distroUnitId], references: [id], onDelete: Cascade)
+  breakerRatingAmps    Decimal
+  voltage              Decimal
+  phaseLeg             String // 'L1' | 'L2' | 'L3' | 'hot' | 'neutral'
+  connectorType        String
+  isContinuousOverride Boolean?
+
+  instances EquipmentInstance[]
+}
+
+model EquipmentInstance {
+  id              String        @id @default(uuid())
+  plotId          String
+  plot            Plot          @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  equipmentSpecId String
+  equipmentSpec   EquipmentSpec @relation(fields: [equipmentSpecId], references: [id])
+  circuitId       String?
+  circuit         Circuit?      @relation(fields: [circuitId], references: [id])
+  cableSpecId     String?
+  cableSpec       CableSpec?    @relation(fields: [cableSpecId], references: [id])
+  cableLengthFt   Decimal?
+  quantity        Int           @default(1)
+  pinned          Boolean       @default(false)
+}

@@ -1,0 +1,23 @@
+{
+  "name": "power-distro-calculator",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.15.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter=./packages/* --filter=./apps/* build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "dev:api": "pnpm --filter @power-distro/api dev",
+    "dev:web": "pnpm --filter @power-distro/web dev",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "prisma:migrate": "pnpm --filter @power-distro/api exec prisma migrate dev",
+    "prisma:seed": "pnpm --filter @power-distro/api exec prisma db seed"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

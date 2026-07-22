@@ -74,4 +74,4 @@ based on impementation_plan.md, store a markdown file with a concrete design abo
 functions.
 
 base - build prompt
-
+based on IMPLEMENTATION_PLAN.md and DESIGN.md, please build the power distro calculator
